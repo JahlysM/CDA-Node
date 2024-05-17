@@ -1,6 +1,6 @@
+import { parse } from "cookie";
 import jwt from 'jsonwebtoken';
 import { Socket } from 'socket.io';
-import { parse } from "cookie";
 
 import env from '../config/env';
 

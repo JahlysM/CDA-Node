@@ -5,17 +5,28 @@ import { User } from '../entities/User';
 
 const { REFRESH_SECRET, JWT_SECRET } = env;
 
+/**
+ * Service pour gérer l'authentification.
+ */
 export class AuthService {
     private refreshTokenStore: Map<string, string> = new Map();
     private UserRepository = new UserRepository();
 
-    // générer un JWT pour un user avec une durée de validité de 15 mn
+    /**
+     * Génère un jeton d'accès JWT pour un utilisateur avec une durée de validité de 15 minutes.
+     * @param {string} id - L'identifiant de l'utilisateur pour lequel générer le jeton.
+     * @returns {string} Le jeton d'accès JWT généré.
+     */
     issueAccessToken(id: string): string {
         return jwt.sign({ userId: id }, JWT_SECRET, { expiresIn: '15m' });
     }
 
-    async issueRefreshToken(id: string): Promise<string> {
-        // on crée un refreshToken qui va durer longtemps (genre 7j)
+    /**
+     * Génère un jeton de rafraîchissement JWT pour un utilisateur.
+     * @param {string} id - L'identifiant de l'utilisateur pour lequel générer le jeton de rafraîchissement.
+     */
+    async issueRefreshToken(id: string) {
+        // On crée un refreshToken qui va durer longtemps (par exemple, 7 jours)
         const refreshToken = jwt.sign({ userId: id}, REFRESH_SECRET, { expiresIn: '7d' });
         const user = await this.UserRepository.getUserById(id, { id: true, refreshToken: true });
         if (user) {
@@ -26,7 +37,11 @@ export class AuthService {
         return refreshToken;
     }
 
-    async refreshAccessToken(refreshToken: string): Promise<string | void> {
+    /**
+     * Rafraîchit un jeton d'accès JWT à partir d'un jeton de rafraîchissement.
+     * @param {string} refreshToken - Le jeton de rafraîchissement JWT à utiliser pour rafraîchir le jeton d'accès.
+     */
+    async refreshAccessToken(refreshToken: string) {
         try {
             // On vérifie que le token en paramètre est bien valide
             const payload = jwt.verify(refreshToken, REFRESH_SECRET) as jwt.JwtPayload;
@@ -37,16 +52,16 @@ export class AuthService {
                 return this.issueAccessToken(payload.userId);
             }
 
-            // On récupére ce même token dans notre store
+            // On récupère ce même token dans notre store
             const storedRefreshToken = this.refreshTokenStore.get(payload.userId);
 
-            // Si ce token existe dans le store, ca implique qu'il est valide.
+            // Si ce token existe dans le store, cela implique qu'il est valide.
             if (storedRefreshToken === refreshToken) {
-                // On génère un nouveau token de rafraichissement
+                // On génère un nouveau token de rafraîchissement
                 const newAccessToken = this.issueAccessToken(payload.userId);
                 return newAccessToken;
             } else {
-                // delete access token cookies and refresh token cookies
+                 // Suppression des cookies du jeton d'accès et du jeton de rafraîchissement
                 if (user) {
                     user.refreshToken = ''
                     this.UserRepository.updateUser(user as User);

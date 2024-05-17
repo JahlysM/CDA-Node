@@ -1,40 +1,24 @@
-// dotenv permet de charger les variables d'environnement depuis un fichier .env
-import dotenv from "dotenv";
-dotenv.config();
-
-import express, { NextFunction, Request, Response } from "express";
-import http from "http";
-import helmet from 'helmet'
 import cookieParser from "cookie-parser";
-
-import router from "./infrastructure/web/routes";
-
+import cors from 'cors';
+import dotenv from "dotenv";
+import express, { NextFunction, Request, Response } from "express";
+import helmet from 'helmet';
+import http from "http";
 import swaggerUi from 'swagger-ui-express';
 import YAML from 'yamljs';
+import env from "./config/env";
+import router from "./infrastructure/web/routes";
+import { errorHandler } from "./middlewares/errorHandler";
+import { requestLogger } from "./middlewares/logger";
+import { refreshTokenMiddleware } from "./middlewares/refreshToken";
+dotenv.config();
+
 const swaggerDocument = YAML.load('./swagger.yaml');
 
-import cors from 'cors';
-
-import env from "./config/env";
-import { requestLogger } from "./middlewares/logger";
-import { errorHandler } from "./middlewares/errorHandler";
-import { refreshTokenMiddleware } from "./middlewares/refreshToken";
-import { initializeSocketServer } from "./infrastructure/web/sockets/server";
-
-
-/**
- * // Port d'écoute
- * @type {number}
- */
 const { PORT, FRONTEND_URL } = env;
 
-/**
- * Création intance app express
- * @type {Express} 
- */
 const app = express();
 const server = http.createServer(app);
-initializeSocketServer(server);
 
 // mw pour pouvoir lire les cookies plus facilement
 app.use(cookieParser());

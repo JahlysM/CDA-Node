@@ -1,7 +1,7 @@
+import { eq } from "drizzle-orm";
+import { NewUser, User, UserColumns } from "../../domain/entities/User";
 import { db } from "../data";
 import { users } from "../data/schema";
-import { User, NewUser, UserColumns } from "../../domain/entities/User";
-import { eq } from "drizzle-orm";
 
 
 /**

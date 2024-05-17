@@ -1,18 +1,23 @@
+import bcrypt from 'bcrypt';
 import { Request, Response } from 'express';
 import env from '../../../config/env';
-import bcrypt from 'bcrypt';
 
-import { UserRepository } from '../../repositories/UserRepository';
 import { AuthService } from '../../../domain/services/AuthService';
+import { UserRepository } from '../../repositories/UserRepository';
 
-import { response } from '../../../utils/response';
 import { CustomRequest } from '../../../types/express';
+import { response } from '../../../utils/response';
 
 const { NODE_ENV } = env;
 
 const userRepo = new UserRepository();
 const authService = new AuthService();
 
+/**
+ * connecte une utilisateur
+ * @param {Request} req - La requête HTTP entrante.
+ * @param {Response} res - La réponse HTTP à renvoyer.
+ */
 export const login = async (req: Request, res: Response) => {
     try {
         const { username, password } = req.body;
@@ -48,6 +53,11 @@ export const login = async (req: Request, res: Response) => {
     }
 }
 
+/**
+ * crée un utilisateur.
+ * @param {Request} req - La requête HTTP entrante.
+ * @param {Response} res - La réponse HTTP à renvoyer.
+ */
 export const register = async (req: Request, res: Response) => {
     try {
         const { username, password, confirmPassword } = req.body;
@@ -71,7 +81,7 @@ export const register = async (req: Request, res: Response) => {
     } catch(error) {
         console.error(error);
         response(res, {statusCode: 500, message: 'Internal server error'})
-    } 
+    }  
 }
 
 export const me = async (req: CustomRequest, res: Response) => {
@@ -84,6 +94,11 @@ export const me = async (req: CustomRequest, res: Response) => {
     }
 }
 
+/**
+ * déconnecte un utilisateur.
+ * @param {Request} req - La requête HTTP entrante.
+ * @param {Response} res - La réponse HTTP à renvoyer.
+ */
 export const logout = async (req: Request, res: Response) => {
     try {
         res.clearCookie('accessToken');

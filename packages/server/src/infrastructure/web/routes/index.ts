@@ -1,12 +1,14 @@
 import express from 'express';
-import postRoutes from './postRoutes';
-import commentRoutes from './commentRoutes';
+import pokemonRoutes from './pokemonRoutes';
+import teamRoutes from './teamRoutes';
+import typeRoutes from './typeRoutes';
 import userRoutes from './userRoutes';
 
 const router = express.Router();
 
-router.use('/posts', postRoutes);
-router.use('/comments', commentRoutes)
 router.use('/users', userRoutes);
+router.use('/pokemons', pokemonRoutes);
+router.use('/types', typeRoutes);
+router.use('/teams', teamRoutes);
 
 export default router;
